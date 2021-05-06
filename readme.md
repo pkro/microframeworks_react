@@ -39,8 +39,66 @@ Example project structure:
 
 ![build time integration](images/projectoverview.png)
 
-- no framework
+- for now, no framework
 - must be able to run in isolation
 - must be able to be run in container app
 
+
+## Webpack overview
+
+Minimal viable setup (version numbers only for this project follow along):
+
+`npm install webpack@5.4.0 webpack-cli@4.5.0 webpack-dev-server@3.11.0 faker@5.1.0 html-webpack-plugin@5.1.0`
+
+- put index.js (entry point) in src folder
+
+Add webpack.config.js with content
+
+    module.exports = {
+      mode: 'developlment',
+    };
+
+Edit scripts section in package.json:
+
+  "scripts": {
+    "start": "webpack"
+  },
+
+-> running `npm run start`  will now create a diest folder with a monolithic JS file (`main.js` or  `bundle.js` containing all dependencies that were included in the index.js
+
+- reduces files the browser has to load
+
+Webpack dev server makes build available in browser; to enable it, add the following to the webpack-config.js:
+
+    devServer: {
+      port: 8081
+    }
+
+and change the package.json script to `"start": "webpack serve"`
+
+
+![build time integration](images/webpack.png)
+
+To make it executable in an html page in the browser, add an html file *without* including the js file. The name of the generated files can change, so we make webpack figure out where to put it using `html-webpack-plugin`, which checks the output of webpack and automatically adds script tags to the specified html file.
+
+- Create an `index.html` in a newly created `public` folder, just put in basic html structure
+- add the plugin and html file location to `webpack.config.js`, which now should look like this:
+
+    
+      const HtmlWebpackPlugin = require('html-webpack-plugin');
+
+      module.exports = {
+        mode: 'development',
+        devServer: {
+          port: 8081
+        },
+
+        plugins: [
+          new HtmlWebpackPlugin( {
+            template: './public/index.html'
+          })
+        ]
+      };
+
+- when changes in the code occur, webpack automatically rebuilds the dist js, the html includes and reloads the page in the browser
 
